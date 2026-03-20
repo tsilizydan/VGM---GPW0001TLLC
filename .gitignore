@@ -18,3 +18,7 @@ Thumbs.db
 .idea/
 .vscode/
 *.swp
+
+# Diagnostic / test scripts (delete before committing to production)
+/public/diagnose.php
+/public/test_routes.php
