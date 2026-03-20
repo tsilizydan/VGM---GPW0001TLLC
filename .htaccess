@@ -1,10 +1,43 @@
-# Block direct HTTP access to everything outside /public/
-# On Namecheap shared hosting, point your domain root to /public/
-# This file is a safety net in case the root is exposed.
+# ═══════════════════════════════════════════════════════════════
+# ROOT .htaccess — Namecheap shared hosting compatibility
+#
+# PURPOSE: Handle the Namecheap scenario where the domain's
+# document root is set to the PROJECT ROOT (not /public/).
+#
+# SCENARIO A (Preferred): Document root IS /public/
+#   → This file has no effect; public/.htaccess handles everything.
+#
+# SCENARIO B (Namecheap limitation): Document root is PROJECT ROOT
+#   → This file forwards ALL requests into /public/, which then
+#     handles routing via its own .htaccess and index.php.
+#
+# ⚠️  IMPORTANT: The root .htaccess previously had "Require all denied"
+#     which caused 403 for EVERYTHING. That is now removed.
+# ═══════════════════════════════════════════════════════════════
 
-<IfModule mod_authz_core.c>
-    Require all denied
+Options -Indexes
+DirectoryIndex public/index.php index.php
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /
+
+    # Allow direct access to files inside /public (assets, images, etc.)
+    RewriteCond %{REQUEST_FILENAME} -f [OR]
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteRule ^ - [L]
+
+    # If the request URI doesn't already start with /public, forward it there
+    RewriteCond %{REQUEST_URI} !^/public/
+    RewriteRule ^(.*)$ public/$1 [L]
 </IfModule>
-<IfModule !mod_authz_core.c>
-    Deny from all
-</IfModule>
+
+# Block access to sensitive project files from a root-document-root setup
+<FilesMatch "\.(env|json|lock|md|sql|sh|log|gitignore|gitattributes)$">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Deny from all
+    </IfModule>
+</FilesMatch>
