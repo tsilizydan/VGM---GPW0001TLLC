@@ -212,10 +212,16 @@ class Application
         try {
             $this->router->dispatch($request);
         } catch (\Throwable $e) {
-            $code    = $e->getCode();
-            $isHttp  = in_array($code, [400, 403, 404, 405, 422, 500], true);
-            $status  = $isHttp ? $code : 500;
             error_log((string) $e);
+
+            // In forced-debug mode, re-throw so index.php renders the raw stack trace
+            if (defined('FORCE_DEBUG') && FORCE_DEBUG === true) {
+                throw $e;
+            }
+
+            $code   = $e->getCode();
+            $isHttp = in_array($code, [400, 403, 404, 405, 422, 500], true);
+            $status = $isHttp ? $code : 500;
             Response::abort($status);
         }
     }
