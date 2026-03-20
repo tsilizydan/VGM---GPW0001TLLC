@@ -25,9 +25,9 @@ class ErrorController extends Controller
     {
         http_response_code(404);
 
-        $this->render('errors/not_found', [
-            'title'   => '404 — Page introuvable',
-            'backUrl' => $_SERVER['HTTP_REFERER'] ?? locale_url('/'),
-        ], 'errors');
+        $title   = '404 — Page introuvable';
+        $backUrl = $_SERVER['HTTP_REFERER'] ?? locale_url('/');
+
+        require BASE_PATH . '/app/views/errors/not_found.php';
     }
 }
