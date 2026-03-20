@@ -22,8 +22,8 @@ class Application
     public function __construct()
     {
         $this->loadEnv();
+        $this->registerAutoloader(); // ← MUST come before configure() so Core\Cache, Core\Assets, etc. are autoloadable
         $this->configure();
-        $this->registerAutoloader();
 
         $this->router = new Router();
     }
