@@ -1,0 +1,270 @@
+/* =============================================================
+   Vanilla Groupe Madagascar — Tailwind CSS Entry Point
+   Run: npm run dev  (watch) | npm run build (minify)
+   ============================================================= */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── @layer base ─────────────────────────────────────────────── */
+@layer base {
+  :root {
+    --color-vanilla: 78 52 46;
+    --color-forest:  106 143 78;
+    --color-gold:    200 169 106;
+    --color-cream:   248 245 240;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    @apply font-sans text-vanilla-800 bg-cream-100 antialiased;
+    font-feature-settings: 'liga' 1, 'calt' 1;
+  }
+
+  h1, h2, h3, h4 { @apply font-serif; }
+
+  ::selection {
+    @apply bg-forest-200 text-forest-800;
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar       { width: 8px; }
+  ::-webkit-scrollbar-track { @apply bg-cream-100; }
+  ::-webkit-scrollbar-thumb { @apply bg-vanilla-300 rounded-pill; }
+  ::-webkit-scrollbar-thumb:hover { @apply bg-vanilla-500; }
+}
+
+/* ── @layer components ───────────────────────────────────────── */
+@layer components {
+
+  /* ── GLASS ── */
+  .glass {
+    @apply backdrop-blur-md bg-white/10 border border-white/20 shadow-glass;
+  }
+  .glass-sm {
+    @apply backdrop-blur-sm bg-white/[0.08] border border-white/15 shadow-soft;
+  }
+  .glass-strong {
+    @apply backdrop-blur-xl bg-white/20 border border-white/25 shadow-glass-lg;
+  }
+  .glass-dark {
+    @apply backdrop-blur-lg bg-vanilla-900/10 border border-vanilla-800/15 shadow-glass;
+  }
+  .glass-card {
+    @apply bg-white/[0.72] backdrop-blur-md border border-white/50 shadow-card
+           rounded-xl transition-all duration-400 ease-smooth;
+  }
+  .glass-card:hover {
+    @apply shadow-card-hover -translate-y-1;
+  }
+
+  /* ── BUTTONS ── */
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 font-sans font-semibold
+           text-body-sm px-6 py-3 rounded-lg border border-transparent
+           transition-all duration-250 ease-smooth cursor-pointer
+           focus:outline-none focus:ring-2 focus:ring-offset-2
+           disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none
+           select-none;
+  }
+
+  .btn-primary {
+    @apply btn bg-vanilla-700 text-cream-100 border-vanilla-700
+           hover:bg-vanilla-600 hover:shadow-gold hover:-translate-y-0.5
+           focus:ring-vanilla-500 active:translate-y-0 active:shadow-none;
+  }
+
+  .btn-secondary {
+    @apply btn bg-white/15 text-vanilla-700 border-vanilla-300/60
+           backdrop-blur-sm
+           hover:bg-white/30 hover:border-vanilla-400 hover:-translate-y-0.5
+           focus:ring-vanilla-400;
+  }
+
+  .btn-ghost {
+    @apply btn bg-transparent text-vanilla-600 border-transparent
+           hover:bg-vanilla-50 hover:text-vanilla-800
+           focus:ring-vanilla-300;
+  }
+
+  .btn-forest {
+    @apply btn bg-forest-400 text-white border-forest-400
+           hover:bg-forest-500 hover:shadow-glow-forest hover:-translate-y-0.5
+           focus:ring-forest-300;
+  }
+
+  .btn-gold {
+    @apply btn bg-gold-400 text-vanilla-900 border-gold-400
+           hover:bg-gold-300 hover:shadow-gold hover:-translate-y-0.5
+           focus:ring-gold-300;
+  }
+
+  .btn-sm { @apply px-4 py-2 text-caption; }
+  .btn-lg { @apply px-8 py-4 text-body rounded-xl; }
+  .btn-xl { @apply px-10 py-5 text-body-lg rounded-2xl; }
+  .btn-icon { @apply p-3 rounded-lg; }
+
+  /* ── BADGES ── */
+  .badge {
+    @apply inline-flex items-center gap-1 text-caption font-semibold
+           px-3 py-1 rounded-pill uppercase tracking-wide;
+  }
+  .badge-premium { @apply badge bg-gold-100 text-gold-700 border border-gold-300; }
+  .badge-bio     { @apply badge bg-forest-100 text-forest-700 border border-forest-300; }
+  .badge-new     { @apply badge bg-vanilla-100 text-vanilla-700 border border-vanilla-300; }
+  .badge-sale    { @apply badge bg-red-100 text-red-700 border border-red-300; }
+
+  /* ── FORMS ── */
+  .form-label {
+    @apply block text-body-sm font-semibold text-vanilla-700 mb-1.5;
+  }
+  .form-input {
+    @apply w-full font-sans text-body text-vanilla-800 px-4 py-3 rounded-lg
+           bg-white/70 border border-vanilla-200/60 backdrop-blur-sm
+           placeholder:text-vanilla-400
+           transition-all duration-250 ease-smooth outline-none
+           focus:bg-white/90 focus:border-forest-400 focus:ring-2 focus:ring-forest-300/40;
+  }
+  .form-input-error {
+    @apply form-input border-red-400 focus:border-red-500 focus:ring-red-300/40;
+  }
+  .form-input-success {
+    @apply form-input border-forest-400 focus:border-forest-500 focus:ring-forest-300/40;
+  }
+  .form-hint  { @apply text-caption text-vanilla-400 mt-1.5; }
+  .form-error { @apply text-caption text-red-600 mt-1.5 flex items-center gap-1; }
+
+  /* ── ALERTS ── */
+  .alert {
+    @apply flex items-start gap-3 p-4 rounded-xl border text-body-sm font-medium
+           backdrop-blur-sm;
+  }
+  .alert-success { @apply alert bg-forest-50 border-forest-200 text-forest-800; }
+  .alert-error   { @apply alert bg-red-50   border-red-200   text-red-800; }
+  .alert-info    { @apply alert bg-gold-50   border-gold-200  text-gold-800; }
+  .alert-warning { @apply alert bg-amber-50  border-amber-200 text-amber-800; }
+
+  /* ── CARDS ── */
+  .card {
+    @apply bg-white rounded-xl border border-cream-300 shadow-card
+           transition-all duration-400 ease-smooth overflow-hidden;
+  }
+  .card:hover { @apply shadow-card-hover; }
+
+  .product-card {
+    @apply card cursor-pointer;
+  }
+
+  /* ── NAV ── */
+  .nav-link {
+    @apply font-sans font-medium text-body-sm text-vanilla-700/80
+           hover:text-vanilla-700 transition-colors duration-250
+           relative after:absolute after:bottom-0 after:left-0 after:right-0
+           after:h-0.5 after:bg-vanilla-700 after:scale-x-0 after:origin-left
+           after:transition-transform after:duration-250 hover:after:scale-x-100;
+  }
+  .nav-link-active {
+    @apply nav-link text-vanilla-700 after:scale-x-100;
+  }
+
+  /* ── DIVIDERS ── */
+  .divider-organic {
+    @apply border-none h-px my-8
+           bg-gradient-to-r from-transparent via-vanilla-200 to-transparent;
+  }
+
+  /* ── SECTION ── */
+  .section { @apply py-16 md:py-20 lg:py-24; }
+  .section-sm { @apply py-10 md:py-14; }
+
+  /* ── CONTAINER ── */
+  .container-vgm {
+    @apply w-full max-w-container mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  /* ── PRODUCT IMAGE ── */
+  .product-img-wrap {
+    @apply relative overflow-hidden bg-cream-100 aspect-[4/5];
+  }
+  .product-img-wrap img {
+    @apply w-full h-full object-cover transition-transform duration-700 ease-smooth;
+  }
+  /* group-hover applied inline in the template (Tailwind limitation: no @apply with group-hover) */
+
+  /* ── TABS ── */
+  .tab-btn {
+    @apply px-5 py-2.5 text-body-sm font-semibold rounded-pill
+           text-vanilla-500 transition-all duration-250 cursor-pointer;
+  }
+  .tab-btn-active {
+    @apply tab-btn bg-vanilla-700 text-cream-100 shadow-soft;
+  }
+
+  /* ── QUANTITY CONTROL ── */
+  .qty-btn {
+    @apply w-9 h-9 flex items-center justify-center rounded-lg
+           bg-cream-200 text-vanilla-700 font-bold text-body
+           hover:bg-vanilla-100 hover:text-vanilla-800
+           transition-all duration-200 select-none cursor-pointer;
+  }
+
+  /* ── MALAGASY PATTERN OVERLAY ── */
+  .malagasy-bg {
+    @apply bg-gradient-warm bg-malagasy-weave;
+  }
+}
+
+/* ── @layer utilities ────────────────────────────────────────── */
+@layer utilities {
+  .text-balance { text-wrap: balance; }
+  .gradient-text-warm {
+    @apply bg-gradient-to-r from-vanilla-700 via-gold-500 to-vanilla-600
+           bg-clip-text text-transparent;
+  }
+  .gradient-text-forest {
+    @apply bg-gradient-to-r from-forest-600 to-forest-400
+           bg-clip-text text-transparent;
+  }
+  .hover-lift {
+    @apply transition-transform duration-250 ease-smooth hover:-translate-y-1;
+  }
+  .shimmer-bg {
+    background: linear-gradient(90deg, #f0ebe6 25%, #faf7f2 50%, #f0ebe6 75%);
+    background-size: 200% 100%;
+    @apply animate-shimmer;
+  }
+  /* Animate.css utility wrappers */
+  .animate-on-scroll {
+    @apply opacity-0;
+  }
+  .animate-on-scroll.visible {
+    opacity: 1;
+    animation: fadeIn 0.5s ease-out both;
+  }
+
+  /* ── Quantity button ───────────────────── */
+  .qty-btn {
+    @apply w-10 h-10 flex items-center justify-center
+           text-vanilla-700 font-bold text-lg
+           bg-cream-100 hover:bg-vanilla-100
+           transition-colors duration-200 cursor-pointer select-none;
+  }
+
+  /* ── Small button modifier ─────────────── */
+  .btn-sm {
+    @apply px-3 py-1.5 text-xs;
+  }
+
+  /* ── Pill shape ─────────────────────────── */
+  .rounded-pill { border-radius: 9999px; }
+
+  /* ── Form base styles (if not already) ─── */
+  .form-label {
+    @apply block text-xs font-semibold text-vanilla-700 mb-1.5 uppercase tracking-wider;
+  }
+  .form-hint {
+    @apply text-xs text-vanilla-400 mt-1;
+  }
+}

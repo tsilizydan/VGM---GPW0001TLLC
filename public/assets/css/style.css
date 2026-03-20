@@ -1,0 +1,182 @@
+/* =========================================================
+   Vanilla Groupe Madagascar – Base Stylesheet
+   ========================================================= */
+
+/* --- Variables ------------------------------------------ */
+:root {
+    --color-primary:     #2d6a2d;
+    --color-primary-dk:  #1e4a1e;
+    --color-accent:      #c8a84b;
+    --color-bg:          #fafaf7;
+    --color-surface:     #ffffff;
+    --color-text:        #1a1a1a;
+    --color-muted:       #6b6b6b;
+    --color-border:      #e0e0d8;
+    --font-sans:         'Segoe UI', system-ui, sans-serif;
+    --radius:            8px;
+    --shadow:            0 2px 12px rgba(0,0,0,.08);
+    --transition:        .2s ease;
+}
+
+/* --- Reset ---------------------------------------------- */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+    font-family: var(--font-sans);
+    background: var(--color-bg);
+    color: var(--color-text);
+    line-height: 1.6;
+}
+a { color: var(--color-primary); text-decoration: none; }
+a:hover { color: var(--color-primary-dk); }
+img { max-width: 100%; display: block; }
+
+/* --- Container ------------------------------------------ */
+.container {
+    width: 100%;
+    max-width: 1100px;
+    margin-inline: auto;
+    padding-inline: 1.25rem;
+}
+
+/* --- Header --------------------------------------------- */
+.site-header {
+    background: var(--color-surface);
+    border-bottom: 1px solid var(--color-border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: var(--shadow);
+}
+.site-header .container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-block: 1rem;
+}
+.logo {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--color-primary);
+    letter-spacing: -.01em;
+}
+.main-nav {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: .25rem;
+}
+.main-nav a {
+    margin-left: 1.25rem;
+    font-weight: 500;
+    transition: color var(--transition);
+}
+.main-nav a:hover { color: var(--color-accent); }
+
+/* Auth nav extras */
+.nav-cta {
+    margin-left: 1rem;
+    padding: .45rem 1.1rem;
+    font-size: .875rem;
+}
+.nav-user {
+    margin-left: 1.25rem;
+    font-size: .875rem;
+    font-weight: 600;
+    color: var(--color-text);
+}
+.nav-logout {
+    color: #b91c1c !important;
+}
+.nav-logout:hover { color: #991b1b !important; }
+.nav-badge {
+    margin-left: .5rem;
+    display: inline-block;
+    padding: .15rem .55rem;
+    background: #fef3c7;
+    color: #92400e;
+    border-radius: 99px;
+    font-size: .72rem;
+    font-weight: 700;
+    letter-spacing: .02em;
+    vertical-align: middle;
+}
+
+/* --- Main content padding -------------------------------- */
+.site-main { padding-block: 0; }
+
+/* --- Hero ----------------------------------------------- */
+.hero {
+    text-align: center;
+    padding: 5rem 1.25rem 4rem;
+    background: linear-gradient(160deg, #f0f7f0 0%, #faf7ee 100%);
+    border-bottom: 1px solid var(--color-border);
+}
+.hero h1 {
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 800;
+    color: var(--color-primary-dk);
+    line-height: 1.2;
+    margin-bottom: .75rem;
+}
+.hero .tagline {
+    font-size: 1.15rem;
+    color: var(--color-muted);
+    margin-bottom: 2rem;
+}
+
+/* --- Button --------------------------------------------- */
+.btn {
+    display: inline-block;
+    background: var(--color-primary);
+    color: #fff;
+    padding: .75rem 2rem;
+    border-radius: var(--radius);
+    font-weight: 600;
+    transition: background var(--transition), transform var(--transition);
+}
+.btn:hover {
+    background: var(--color-primary-dk);
+    color: #fff;
+    transform: translateY(-2px);
+}
+
+/* --- Feature Cards -------------------------------------- */
+.features {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1.5rem;
+    padding: 4rem 1.25rem;
+    max-width: 1100px;
+    margin-inline: auto;
+}
+.feature-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    padding: 2rem 1.5rem;
+    box-shadow: var(--shadow);
+    transition: transform var(--transition), box-shadow var(--transition);
+}
+.feature-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0,0,0,.1);
+}
+.feature-card .icon { font-size: 2.5rem; display: block; margin-bottom: .75rem; }
+.feature-card h2 {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--color-primary-dk);
+    margin-bottom: .5rem;
+}
+.feature-card p { color: var(--color-muted); font-size: .95rem; }
+
+/* --- Footer --------------------------------------------- */
+.site-footer {
+    background: var(--color-primary-dk);
+    color: #d8e8d8;
+    text-align: center;
+    padding: 1.5rem 1.25rem;
+    font-size: .875rem;
+    margin-top: 4rem;
+}

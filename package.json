@@ -1,0 +1,14 @@
+{
+  "name": "vanilla-groupe-madagascar",
+  "version": "1.0.0",
+  "description": "Premium e-commerce frontend – Vanilla Groupe Madagascar",
+  "private": true,
+  "scripts": {
+    "dev":   "tailwindcss -i resources/css/app.css -o public/assets/css/app.css --watch",
+    "build": "tailwindcss -i resources/css/app.css -o public/assets/css/app.css --minify"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.0",
+    "autoprefixer": "^10.4.0"
+  }
+}
