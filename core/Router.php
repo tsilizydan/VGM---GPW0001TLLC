@@ -97,6 +97,6 @@ class Router
             return;
         }
 
-        Response::abort(404, 'Page Not Found');
+        RouteGuard::handleInvalidRoute();
     }
 }
