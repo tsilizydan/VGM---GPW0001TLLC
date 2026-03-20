@@ -1,4 +1,5 @@
 Options -Indexes
+DirectoryIndex index.php index.html
 
 # ═══════════════════════════════════════════════════
 # PERFORMANCE — Gzip Compression
@@ -9,7 +10,6 @@ Options -Indexes
     AddOutputFilterByType DEFLATE application/json application/xml text/xml
     AddOutputFilterByType DEFLATE image/svg+xml image/x-icon
     AddOutputFilterByType DEFLATE font/ttf font/otf font/woff font/woff2
-    # Remove browser bugs
     BrowserMatch ^Mozilla/4 gzip-only-text/html
     BrowserMatch ^Mozilla/4\.0[678] no-gzip
     BrowserMatch \bMSIE !no-gzip !gzip-only-text/html
@@ -17,133 +17,107 @@ Options -Indexes
 </IfModule>
 
 # ═══════════════════════════════════════════════════
-# PERFORMANCE — Browser Caching (far-future expires)
+# PERFORMANCE — Browser Caching
 # ═══════════════════════════════════════════════════
 <IfModule mod_expires.c>
     ExpiresActive On
-    ExpiresDefault "access plus 1 month"
-
-    # HTML — no cache (dynamic pages)
-    ExpiresByType text/html                         "access plus 0 seconds"
-
-    # CSS & JavaScript — 1 year (fingerprinted filenames)
-    ExpiresByType text/css                          "access plus 1 year"
-    ExpiresByType application/javascript            "access plus 1 year"
-    ExpiresByType text/javascript                   "access plus 1 year"
-
-    # Images — 6 months
-    ExpiresByType image/jpeg                        "access plus 6 months"
-    ExpiresByType image/png                         "access plus 6 months"
-    ExpiresByType image/webp                        "access plus 6 months"
-    ExpiresByType image/gif                         "access plus 6 months"
-    ExpiresByType image/svg+xml                     "access plus 6 months"
-    ExpiresByType image/x-icon                      "access plus 1 year"
-
-    # Fonts — 1 year
-    ExpiresByType font/ttf                          "access plus 1 year"
-    ExpiresByType font/otf                          "access plus 1 year"
-    ExpiresByType font/woff                         "access plus 1 year"
-    ExpiresByType font/woff2                        "access plus 1 year"
-    ExpiresByType application/font-woff             "access plus 1 year"
-
-    # JSON / XML
-    ExpiresByType application/json                  "access plus 0 seconds"
+    ExpiresDefault                                "access plus 1 month"
+    ExpiresByType text/html                       "access plus 0 seconds"
+    ExpiresByType text/css                        "access plus 1 year"
+    ExpiresByType application/javascript          "access plus 1 year"
+    ExpiresByType text/javascript                 "access plus 1 year"
+    ExpiresByType image/jpeg                      "access plus 6 months"
+    ExpiresByType image/png                       "access plus 6 months"
+    ExpiresByType image/webp                      "access plus 6 months"
+    ExpiresByType image/gif                       "access plus 6 months"
+    ExpiresByType image/svg+xml                   "access plus 6 months"
+    ExpiresByType image/x-icon                    "access plus 1 year"
+    ExpiresByType font/ttf                        "access plus 1 year"
+    ExpiresByType font/otf                        "access plus 1 year"
+    ExpiresByType font/woff                       "access plus 1 year"
+    ExpiresByType font/woff2                      "access plus 1 year"
+    ExpiresByType application/json                "access plus 0 seconds"
 </IfModule>
 
 # ═══════════════════════════════════════════════════
-# PERFORMANCE — Cache-Control headers
+# SECURITY HEADERS
+# FIX: CSP is now a single line (no backslash continuations)
+# FIX: HSTS only set on HTTPS to avoid browser confusion
 # ═══════════════════════════════════════════════════
 <IfModule mod_headers.c>
-    # Remove ETags (we use fingerprints instead)
     Header unset ETag
     FileETag None
 
-    # Immutable static assets (fingerprinted)
+    # Asset cache headers
     <FilesMatch "\.(css|js|woff2?|ttf|otf)$">
         Header set Cache-Control "public, max-age=31536000, immutable"
     </FilesMatch>
-
-    # Images — long cache
     <FilesMatch "\.(jpg|jpeg|png|gif|webp|svg|ico)$">
         Header set Cache-Control "public, max-age=15552000"
     </FilesMatch>
-
-    # HTML — always revalidate
     <FilesMatch "\.(html|php)$">
         Header set Cache-Control "no-cache, no-store, must-revalidate"
         Header set Pragma "no-cache"
         Header set Expires "0"
     </FilesMatch>
 
-    # Security headers
+    # Security headers (safe on HTTP and HTTPS)
     Header always set X-Frame-Options "SAMEORIGIN"
     Header always set X-Content-Type-Options "nosniff"
     Header always set Referrer-Policy "strict-origin-when-cross-origin"
     Header always set Permissions-Policy "camera=(), microphone=(), geolocation=()"
     Header always set X-XSS-Protection "1; mode=block"
 
-    # Strict Transport Security (1 year, include subdomains)
-    Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+    # HSTS — only on HTTPS (avoids 403/redirect loops on plain HTTP)
+    <If "%{HTTPS} == 'on'">
+        Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+    </If>
 
-    # Content Security Policy
-    Header always set Content-Security-Policy "\
-default-src 'self'; \
-script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://cloud.tinymce.com https://cdn.tiny.cloud; \
-style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; \
-font-src 'self' https://fonts.gstatic.com; \
-img-src 'self' data: https:; \
-frame-src 'none'; \
-object-src 'none'; \
-base-uri 'self'; \
-form-action 'self'"
-</IfModule>
+    # Content Security Policy — SINGLE LINE (backslash continuations break Apache on shared hosting)
+    Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://cloud.tinymce.com https://cdn.tiny.cloud; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'"
 
-# ═══════════════════════════════════════════════════
-# PERFORMANCE — Keep-Alive
-# ═══════════════════════════════════════════════════
-<IfModule mod_headers.c>
     Header set Connection keep-alive
 </IfModule>
 
 # ═══════════════════════════════════════════════════
-# URL Rewriting (front controller + locale redirect)
+# URL REWRITING — Namecheap/Apache 2.4 compatible
 # ═══════════════════════════════════════════════════
 <IfModule mod_rewrite.c>
     RewriteEngine On
     RewriteBase /
 
-    # ── System files: pass directly to PHP ───────────
+    # Pass system XML/text files to PHP directly
     RewriteRule ^sitemap\.xml$ index.php [QSA,L]
     RewriteRule ^robots\.txt$  index.php [QSA,L]
 
-    # ── Allow direct access to real files/directories ─
+    # Allow existing files and directories (assets, uploads, etc.)
     RewriteCond %{REQUEST_FILENAME} -f [OR]
     RewriteCond %{REQUEST_FILENAME} -d
     RewriteRule ^ - [L]
 
-    # ── Language-aware base domain redirect ───────────
-    # Only fire when URI is exactly / (root request)
+    # Language-aware root redirect (only fires on bare /)
     RewriteCond %{REQUEST_URI} ^/?$
-
-    # Spanish speakers → /es/
     RewriteCond %{HTTP:Accept-Language} ^es [NC]
     RewriteRule ^ /es/ [R=302,L]
 
-    # English speakers → /en/
     RewriteCond %{REQUEST_URI} ^/?$
     RewriteCond %{HTTP:Accept-Language} ^en [NC]
     RewriteRule ^ /en/ [R=302,L]
 
-    # Default (French) → /fr/
     RewriteCond %{REQUEST_URI} ^/?$
     RewriteRule ^ /fr/ [R=302,L]
 
-    # ── All other requests → front controller ─────────
+    # Everything else → front controller
     RewriteRule ^ index.php [QSA,L]
 </IfModule>
 
+# Fallback if mod_rewrite is disabled (Namecheap always has it, but just in case)
+<IfModule !mod_rewrite.c>
+    DirectoryIndex index.php
+</IfModule>
+
 # ═══════════════════════════════════════════════════
-# PHP settings (shared hosting)
+# PHP SETTINGS (shared hosting)
 # ═══════════════════════════════════════════════════
 <IfModule mod_php.c>
     php_flag display_errors Off
@@ -152,8 +126,24 @@ form-action 'self'"
     php_flag output_buffering On
 </IfModule>
 
-# Prevent access to dot files
-<FilesMatch "^\.">
-    Order allow,deny
-    Deny from all
+# Also try php8 module name (used on some Namecheap servers)
+<IfModule mod_php8.c>
+    php_flag display_errors Off
+    php_value upload_max_filesize 10M
+    php_value post_max_size 12M
+    php_flag output_buffering On
+</IfModule>
+
+# ═══════════════════════════════════════════════════
+# BLOCK DOT-FILES (Apache 2.4 syntax — no 403 bleed)
+# FIX: Use <FilesMatch> with proper Apache 2.4 Require
+# ═══════════════════════════════════════════════════
+<FilesMatch "^\.(?!well-known)">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Deny from all
+    </IfModule>
 </FilesMatch>
