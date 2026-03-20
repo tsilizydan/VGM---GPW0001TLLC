@@ -1,0 +1,20 @@
+# Secrets & environment
+.env
+
+# Composer generated files
+/vendor/
+composer.lock
+
+# Storage (logs, cache, uploads)
+/storage/logs/*.log
+/storage/cache/
+/storage/uploads/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.idea/
+.vscode/
+*.swp
