@@ -1,0 +1,10 @@
+# Block direct HTTP access to everything outside /public/
+# On Namecheap shared hosting, point your domain root to /public/
+# This file is a safety net in case the root is exposed.
+
+<IfModule mod_authz_core.c>
+    Require all denied
+</IfModule>
+<IfModule !mod_authz_core.c>
+    Deny from all
+</IfModule>
