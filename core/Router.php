@@ -100,4 +100,3 @@ class Router
         Response::abort(404, 'Page Not Found');
     }
 }
-
