@@ -139,17 +139,13 @@ class Application
         $uri       = rawurldecode(parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?? '/');
         $uri       = '/' . ltrim($uri, '/');
 
-        // Strip query string from URI (already done by parse_url above)
-
-        // Bypass locale resolution for system routes (sitemap, robots)
-        $bypassPaths = ['/sitemap.xml', '/robots.txt'];
-        if (in_array($uri, $bypassPaths, true)) {
-            // Don't redirect — let them pass through to the router as-is
+        // Skip locale logic entirely for system/asset paths
+        if (RouteGuard::isBypassPath($uri)) {
             Lang::setLocale('fr');
             return;
         }
 
-        // 1. Recognised locale prefix  e.g. /fr/shop or /en
+        // 1. Valid locale prefix: /fr/shop, /en/, /es ...
         if (preg_match('#^/(' . implode('|', $supported) . ')(/.*)?$#', $uri, $m)) {
             $locale    = $m[1];
             $remainder = ($m[2] ?? '') ?: '/';
@@ -157,45 +153,31 @@ class Application
             Lang::setLocale($locale);
             Session::set('locale', $locale);
 
-            // Let the Router see only the path after the locale prefix
+            // Persist in cookie for cross-session memory (1 year)
+            if (!headers_sent()) {
+                setcookie('locale', $locale, time() + 31536000, '/', '', false, false);
+            }
+
+            // Strip prefix — router sees only the path segment after /{locale}
             $_SERVER['REQUEST_URI'] = $remainder;
             return;
         }
 
-        // 2. Bare root /  → redirect to preferred locale
+        // 2. Bare root / → detect language and redirect
+        $detectedLocale = RouteGuard::detectLanguage();
+
         if ($uri === '/') {
-            $saved = Session::get('locale');
-            if ($saved && in_array($saved, $supported, true)) {
-                $this->redirectToLocale($saved);
-            }
-            $this->redirectToLocale($this->detectBrowserLocale($supported));
+            // isHomepageRequest() is true — redirect to /{locale}/
+            $this->redirectToLocale($detectedLocale);
         }
 
-        // 3. Any other path without prefix → redirect preserving path
-        $saved = Session::get('locale') ?? 'fr';
-        if (!in_array($saved, $supported, true)) {
-            $saved = $this->detectBrowserLocale($supported);
-        }
-        $this->redirectToLocale($saved, $uri);
+        // 3. Any path without a locale prefix → redirect, preserving the path
+        //    e.g. /shop → /fr/shop  (SEO-safe: 302 so indexed URLs keep their locale)
+        $this->redirectToLocale($detectedLocale, $uri);
     }
 
-    /**
-     * Detect the best supported locale from the Accept-Language header.
-     *
-     * @param list<string> $supported
-     */
-    private function detectBrowserLocale(array $supported): string
-    {
-        $header = $_SERVER['HTTP_ACCEPT_LANGUAGE'] ?? '';
-        preg_match_all('/([a-z]{2})(?:-[a-z]{2})?/i', $header, $m);
-        foreach ($m[1] as $tag) {
-            $tag = strtolower($tag);
-            if (in_array($tag, $supported, true)) {
-                return $tag;
-            }
-        }
-        return 'fr';
-    }
+    // detectBrowserLocale() is now handled by RouteGuard::detectLanguage()
+    // with quality-weight parsing and session/cookie priority chain.
 
     /**
      * Issue a 302 redirect to /{locale}{path} and exit.
