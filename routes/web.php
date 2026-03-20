@@ -116,3 +116,7 @@ $router->get('/admin/recipes/{id}/delete',    'Admin\\RecipeController@destroy')
 // they are accessible as /sitemap.xml and /robots.txt directly.
 $router->get('/sitemap.xml', 'SitemapController@sitemap');
 $router->get('/robots.txt',  'SitemapController@robots');
+
+// ── Not-found (clean 404 URL) ────────────────────────────────────────────
+// RouteGuard::handleInvalidRoute() redirects here for unmatched routes.
+$router->get('/not-found', 'ErrorController@notFound');
