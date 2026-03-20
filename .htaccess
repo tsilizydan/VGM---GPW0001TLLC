@@ -1,39 +1,56 @@
-# ═══════════════════════════════════════════════════════════════
-# ROOT .htaccess — Namecheap shared hosting compatibility
-#
-# PURPOSE: Handle the Namecheap scenario where the domain's
-# document root is set to the PROJECT ROOT (not /public/).
-#
-# SCENARIO A (Preferred): Document root IS /public/
-#   → This file has no effect; public/.htaccess handles everything.
-#
-# SCENARIO B (Namecheap limitation): Document root is PROJECT ROOT
-#   → This file forwards ALL requests into /public/, which then
-#     handles routing via its own .htaccess and index.php.
-#
-# ⚠️  IMPORTANT: The root .htaccess previously had "Require all denied"
-#     which caused 403 for EVERYTHING. That is now removed.
-# ═══════════════════════════════════════════════════════════════
-
 Options -Indexes
-DirectoryIndex public/index.php index.php
+DirectoryIndex index.php
+
+# ═══════════════════════════════════════════════════════════════
+# ROOT .htaccess — LiteSpeed + Namecheap shared hosting
+#
+# Document root = PROJECT ROOT (not /public/)
+# Entry point   = index.php (project root) → Application::run()
+# Assets path   = /public/assets/* served directly
+# ═══════════════════════════════════════════════════════════════
 
 <IfModule mod_rewrite.c>
     RewriteEngine On
     RewriteBase /
 
-    # Allow direct access to files inside /public (assets, images, etc.)
+    # ── 1. Allow real files & directories (assets, images, etc.) ──
     RewriteCond %{REQUEST_FILENAME} -f [OR]
     RewriteCond %{REQUEST_FILENAME} -d
     RewriteRule ^ - [L]
 
-    # If the request URI doesn't already start with /public, forward it there
-    RewriteCond %{REQUEST_URI} !^/public/
-    RewriteRule ^(.*)$ public/$1 [L]
+    # ── 2. Language-aware root redirect (only on bare /) ──────────
+    RewriteCond %{REQUEST_URI} ^/?$
+    RewriteCond %{HTTP:Accept-Language} ^es [NC]
+    RewriteRule ^ /es/ [R=302,L]
+
+    RewriteCond %{REQUEST_URI} ^/?$
+    RewriteCond %{HTTP:Accept-Language} ^en [NC]
+    RewriteRule ^ /en/ [R=302,L]
+
+    RewriteCond %{REQUEST_URI} ^/?$
+    RewriteRule ^ /fr/ [R=302,L]
+
+    # ── 3. All other requests → root index.php (single rewrite) ───
+    RewriteRule ^ index.php [QSA,L]
 </IfModule>
 
-# Block access to sensitive project files from a root-document-root setup
-<FilesMatch "\.(env|json|lock|md|sql|sh|log|gitignore|gitattributes)$">
+# Fallback if mod_rewrite is disabled
+<IfModule !mod_rewrite.c>
+    DirectoryIndex index.php
+</IfModule>
+
+# ── Block sensitive files ─────────────────────────────────────────
+<FilesMatch "\.(env|sql|sh|md|lock|log|gitignore|gitattributes)$">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Deny from all
+    </IfModule>
+</FilesMatch>
+
+# ── Block dot-files (except .well-known for SSL verification) ─────
+<FilesMatch "^\.(?!well-known)">
     <IfModule mod_authz_core.c>
         Require all denied
     </IfModule>
