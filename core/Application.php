@@ -142,15 +142,18 @@ class Application
 
     /**
      * Detect locale from the URL prefix and strip it from REQUEST_URI.
+     *
+     * NO auto-detection of browser language. Default is always 'fr'.
+     * Users switch language manually via the language switcher.
      */
     private function resolveLocale(): void
     {
         try {
-            $supported = Lang::supportedLocales();
+            $supported = Lang::supportedLocales(); // ['fr','en','es']
             $uri       = rawurldecode(parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?? '/');
             $uri       = '/' . ltrim($uri, '/');
 
-            // Skip locale logic entirely for system/asset paths
+            // Skip locale logic for system/asset paths
             if (RouteGuard::isBypassPath($uri)) {
                 Lang::setLocale('fr');
                 return;
@@ -164,27 +167,32 @@ class Application
                 Lang::setLocale($locale);
                 Session::set('locale', $locale);
 
-                // Persist in cookie for cross-session memory (1 year)
+                // Persist in cookie (1 year)
                 if (!headers_sent()) {
                     setcookie('locale', $locale, time() + 31536000, '/', '', false, false);
                 }
 
-                // Strip prefix — router sees only the path segment after /{locale}
+                // Strip prefix — router sees only the path after /{locale}
                 $_SERVER['REQUEST_URI'] = $remainder;
                 return;
             }
 
-            // 2. Bare root / → detect language and redirect
-            $detectedLocale = RouteGuard::detectLanguage();
+            // 2. No locale prefix → use saved locale or default to 'fr'
+            $savedLocale = Session::get('locale')
+                ?? ($_COOKIE['locale'] ?? null);
 
+            $locale = ($savedLocale && in_array($savedLocale, $supported, true))
+                ? $savedLocale
+                : 'fr';
+
+            // Bare root / → redirect to /{locale}/
             if ($uri === '/') {
-                $this->redirectToLocale($detectedLocale);
+                $this->redirectToLocale($locale);
             }
 
-            // 3. Any path without a locale prefix → redirect, preserving the path
-            $this->redirectToLocale($detectedLocale, $uri);
+            // Any other path without prefix → redirect with locale
+            $this->redirectToLocale($locale, $uri);
         } catch (\Throwable $e) {
-            // If locale resolution crashes, default to 'fr' and continue
             error_log('[resolveLocale] Error: ' . $e->getMessage());
             Lang::setLocale('fr');
         }
