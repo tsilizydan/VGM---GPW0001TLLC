@@ -56,8 +56,9 @@ function asset(string $path): string
     if (class_exists(\Core\Assets::class)) {
         return \Core\Assets::url($path);
     }
+    // Fallback: doc root = project root, so assets are under /public/assets/
     $base = rtrim(env('APP_URL', ''), '/');
-    return $base . '/assets/' . ltrim($path, '/');
+    return $base . '/public/assets/' . ltrim($path, '/');
 }
 
 function url(string $path = ''): string
