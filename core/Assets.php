@@ -55,12 +55,14 @@ class Assets
 
     /**
      * Return a simple versioned URL for any asset (images, fonts…).
+     * Doc root = project root, so web URL must include /public/assets/
      */
     public static function url(string $path): string
     {
-        $absPath = self::$publicDir . '/' . ltrim($path, '/');
+        $path = ltrim($path, '/');
+        $absPath = self::$publicDir . '/assets/' . $path;
         $mtime   = is_file($absPath) ? filemtime($absPath) : time();
-        return self::$baseUrl . '/' . ltrim($path, '/') . '?v=' . $mtime;
+        return self::$baseUrl . '/public/assets/' . $path . '?v=' . $mtime;
     }
 
     // ── Bundle multiple files ─────────────────────────────────────
@@ -130,22 +132,24 @@ class Assets
 
     private static function process(string $path, string $type): string
     {
-        $absPath = self::$publicDir . '/' . ltrim($path, '/');
+        $path    = ltrim($path, '/');
+        $absPath = self::$publicDir . '/assets/' . $path;
 
         if (!is_file($absPath)) {
-            return self::$baseUrl . '/' . ltrim($path, '/');
+            // File not found — return path anyway (browser will 404)
+            return self::$baseUrl . '/public/assets/' . $path;
         }
 
         if (!self::$production) {
             // Dev: serve original with mtime query string for cache busting
-            return self::$baseUrl . '/' . ltrim($path, '/') . '?v=' . filemtime($absPath);
+            return self::$baseUrl . '/public/assets/' . $path . '?v=' . filemtime($absPath);
         }
 
         // Production: minify → write to cache dir → return versioned URL
         $mtime    = filemtime($absPath);
         $cacheKey = $type . '_' . md5($path . $mtime);
         $cacheFile = self::$cacheDir . '/' . $cacheKey . '.' . $type;
-        $cacheUrl  = self::$baseUrl . '/assets/cache/' . $cacheKey . '.' . $type;
+        $cacheUrl  = self::$baseUrl . '/public/assets/cache/' . $cacheKey . '.' . $type;
 
         if (!is_file($cacheFile)) {
             $source = file_get_contents($absPath) ?: '';
@@ -159,27 +163,24 @@ class Assets
     private static function bundle(array $paths, string $type, string $bundleName): string
     {
         if (!self::$production) {
-            // In dev, just return the URLs individually — we include them all
-            // Return a data: URI list isn't possible for link tags, so return first file
-            // Callers should use css()/js() per file in dev
             return self::process($paths[0] ?? '', $type);
         }
 
         // Compute combined mtime hash
         $mtimes = [];
         foreach ($paths as $p) {
-            $f = self::$publicDir . '/' . ltrim($p, '/');
+            $f = self::$publicDir . '/assets/' . ltrim($p, '/');
             $mtimes[] = is_file($f) ? filemtime($f) : 0;
         }
 
         $cacheKey  = $type . '_bundle_' . md5($bundleName . implode('|', $mtimes));
         $cacheFile = self::$cacheDir . '/' . $cacheKey . '.' . $type;
-        $cacheUrl  = self::$baseUrl . '/assets/cache/' . $cacheKey . '.' . $type;
+        $cacheUrl  = self::$baseUrl . '/public/assets/cache/' . $cacheKey . '.' . $type;
 
         if (!is_file($cacheFile)) {
             $combined = '';
             foreach ($paths as $p) {
-                $f = self::$publicDir . '/' . ltrim($p, '/');
+                $f = self::$publicDir . '/assets/' . ltrim($p, '/');
                 if (is_file($f)) {
                     $combined .= file_get_contents($f) . "\n";
                 }
