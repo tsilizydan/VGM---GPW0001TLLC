@@ -127,7 +127,7 @@ class RouteGuard
     {
         // 1. Session
         if (session_status() === PHP_SESSION_ACTIVE) {
-            $saved = $_SESSION['_s']['locale'] ?? null;
+            $saved = $_SESSION['locale'] ?? null;
             if ($saved && in_array($saved, self::SUPPORTED, true)) {
                 return $saved;
             }
