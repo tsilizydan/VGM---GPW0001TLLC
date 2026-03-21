@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vanilla Groupe Madagascar — Vanille Pure de Madagascar</title>
+    <meta name="description" content="Vanilla Groupe Madagascar — Producteur et exportateur de vanille premium depuis Madagascar. Vanilla Bourbon, gousses, et extraits de la plus haute qualité.">
+    <meta property="og:title" content="Vanilla Groupe Madagascar">
+    <meta property="og:description" content="Excellence naturelle depuis Madagascar — Vanille Bourbon premium pour le monde entier.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://vanillagroup-madagascar.tsilizy.com">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .font-playfair { font-family: 'Playfair Display', Georgia, serif; }
+        .font-inter { font-family: 'Inter', system-ui, sans-serif; }
+        @keyframes fade-in { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slide-up { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade { animation: fade-in 0.8s ease-out both; }
+        .animate-slide { animation: slide-up 0.8s ease-out both; }
+        .delay-1 { animation-delay: 0.2s; }
+        .delay-2 { animation-delay: 0.4s; }
+        .delay-3 { animation-delay: 0.6s; }
+        .delay-4 { animation-delay: 0.8s; }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        vanilla: { 50:'#fefcf3', 100:'#fdf5e1', 200:'#f9e4b4', 400:'#C48B68', 500:'#A06642', 600:'#7A4E33', 700:'#5C3A26', 800:'#3B2420', 900:'#2A1812' },
+                        forest: { 500:'#4a7c3e', 600:'#395029', 700:'#2d4020' },
+                        gold: { 300:'#e8c96e', 400:'#C8A96A', 500:'#b59a5a' }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="font-inter bg-vanilla-50 text-vanilla-800 overflow-x-hidden">
+
+    <!-- Top bar -->
+    <div class="h-1 bg-gradient-to-r from-vanilla-800 via-gold-400 to-forest-600"></div>
+
+    <!-- Header -->
+    <header class="bg-white/80 backdrop-blur-lg border-b border-vanilla-100 sticky top-0 z-40">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-gradient-to-br from-vanilla-800 to-vanilla-600 rounded-xl flex items-center justify-center text-xl">🌿</div>
+                <div>
+                    <h1 class="font-playfair font-bold text-vanilla-800 text-lg leading-tight">Vanilla Groupe</h1>
+                    <p class="text-xs text-vanilla-500 tracking-wider">MADAGASCAR</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-3">
+                <a href="https://wa.me/261340000000" class="hidden sm:inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-full text-sm font-medium transition-all hover:scale-105">
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                    WhatsApp
+                </a>
+                <a href="mailto:contact@vanillagroupe.mg" class="text-vanilla-500 hover:text-vanilla-800 text-sm font-medium transition-colors">
+                    ✉️ Contact
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero -->
+    <section class="relative py-20 sm:py-32 overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-b from-vanilla-50 via-transparent to-vanilla-100"></div>
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 text-center relative z-10">
+            <div class="animate-fade">
+                <span class="inline-block bg-gold-400/20 text-gold-500 text-xs font-semibold tracking-widest uppercase px-4 py-1.5 rounded-full mb-6 border border-gold-400/30">
+                    🇲🇬 Depuis Madagascar
+                </span>
+            </div>
+            <h2 class="font-playfair text-4xl sm:text-5xl lg:text-6xl font-bold text-vanilla-900 leading-tight mb-6 animate-fade delay-1">
+                L'Excellence de la<br>
+                <span class="bg-gradient-to-r from-vanilla-600 via-gold-400 to-forest-600 bg-clip-text text-transparent">
+                    Vanille Malgache
+                </span>
+            </h2>
+            <p class="text-vanilla-500 text-lg sm:text-xl leading-relaxed max-w-2xl mx-auto mb-10 animate-fade delay-2">
+                Producteur et exportateur de vanille Bourbon premium. Du planteur malgache à votre table — commerce équitable, qualité inégalée.
+            </p>
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade delay-3">
+                <a href="https://wa.me/261340000000" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-vanilla-800 hover:bg-vanilla-900 text-white px-8 py-4 rounded-full font-semibold text-lg transition-all hover:scale-105 shadow-xl shadow-vanilla-800/20">
+                    Demander un devis
+                </a>
+                <a href="mailto:contact@vanillagroupe.mg" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-white hover:bg-vanilla-50 text-vanilla-800 px-8 py-4 rounded-full font-semibold text-lg border-2 border-vanilla-200 transition-all hover:border-vanilla-400">
+                    ✉️ Nous écrire
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Products -->
+    <section class="py-16 bg-white">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6">
+            <div class="text-center mb-12">
+                <h3 class="font-playfair text-3xl font-bold text-vanilla-800 mb-3">Nos Produits</h3>
+                <p class="text-vanilla-500 max-w-xl mx-auto">Vanille cultivée avec soin dans les meilleures régions de Madagascar</p>
+            </div>
+            <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Card 1 -->
+                <div class="group bg-vanilla-50 rounded-2xl p-6 border border-vanilla-100 hover:border-gold-400/40 hover:shadow-xl hover:shadow-vanilla-200/50 transition-all duration-300">
+                    <div class="w-14 h-14 bg-gradient-to-br from-vanilla-700 to-vanilla-500 rounded-2xl flex items-center justify-center text-3xl mb-5 group-hover:scale-110 transition-transform">🌱</div>
+                    <h4 class="font-playfair text-xl font-bold text-vanilla-800 mb-2">Gousses de Vanille Bourbon</h4>
+                    <p class="text-vanilla-500 text-sm leading-relaxed mb-4">Gousses premium 16-20cm, parfum riche et intense. Grade A pour pâtisserie et gastronomie.</p>
+                    <span class="text-gold-500 text-sm font-semibold">À partir de 30€/kg →</span>
+                </div>
+                <!-- Card 2 -->
+                <div class="group bg-vanilla-50 rounded-2xl p-6 border border-vanilla-100 hover:border-gold-400/40 hover:shadow-xl hover:shadow-vanilla-200/50 transition-all duration-300">
+                    <div class="w-14 h-14 bg-gradient-to-br from-gold-400 to-gold-500 rounded-2xl flex items-center justify-center text-3xl mb-5 group-hover:scale-110 transition-transform">✨</div>
+                    <h4 class="font-playfair text-xl font-bold text-vanilla-800 mb-2">Extrait de Vanille Pur</h4>
+                    <p class="text-vanilla-500 text-sm leading-relaxed mb-4">Extrait pur double concentration, infusé pendant 12 mois. Idéal pour l'industrie alimentaire.</p>
+                    <span class="text-gold-500 text-sm font-semibold">Sur devis →</span>
+                </div>
+                <!-- Card 3 -->
+                <div class="group bg-vanilla-50 rounded-2xl p-6 border border-vanilla-100 hover:border-gold-400/40 hover:shadow-xl hover:shadow-vanilla-200/50 transition-all duration-300">
+                    <div class="w-14 h-14 bg-gradient-to-br from-forest-600 to-forest-500 rounded-2xl flex items-center justify-center text-3xl mb-5 group-hover:scale-110 transition-transform">🌍</div>
+                    <h4 class="font-playfair text-xl font-bold text-vanilla-800 mb-2">Export en Vrac</h4>
+                    <p class="text-vanilla-500 text-sm leading-relaxed mb-4">Livraison mondiale — conteneurs 1T à 20T. Certifications HACCP, Bio disponibles.</p>
+                    <span class="text-gold-500 text-sm font-semibold">Contact export →</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact / Email Capture -->
+    <section class="py-16 bg-gradient-to-br from-vanilla-800 to-vanilla-900 text-white" id="contact">
+        <div class="max-w-2xl mx-auto px-4 sm:px-6 text-center">
+            <h3 class="font-playfair text-3xl font-bold mb-3">Restons en Contact</h3>
+            <p class="text-vanilla-200 mb-8">Recevez nos tarifs et disponibilités directement par email</p>
+            <form action="https://formsubmit.co/contact@vanillagroupe.mg" method="POST" class="flex flex-col sm:flex-row gap-3 max-w-lg mx-auto">
+                <input type="hidden" name="_subject" value="Nouveau contact — Vanilla Groupe Madagascar">
+                <input type="hidden" name="_captcha" value="false">
+                <input type="email" name="email" required placeholder="votre@email.com"
+                       class="flex-1 px-5 py-3.5 rounded-full bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-gold-400 focus:border-gold-400 text-sm">
+                <button type="submit"
+                        class="px-8 py-3.5 bg-gold-400 hover:bg-gold-300 text-vanilla-900 rounded-full font-bold text-sm transition-all hover:scale-105 whitespace-nowrap">
+                    S'inscrire →
+                </button>
+            </form>
+            <p class="text-vanilla-200/40 text-xs mt-4">Pas de spam. Désabonnement en un clic.</p>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-vanilla-900 text-vanilla-200/60 py-8 text-center text-sm">
+        <p>&copy; 2026 Vanilla Groupe Madagascar · Tous droits réservés</p>
+        <p class="mt-1">📍 Madagascar · 📞 +261 34 00 000 00 · ✉️ contact@vanillagroupe.mg</p>
+    </footer>
+
+</body>
+</html>
