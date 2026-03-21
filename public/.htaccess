@@ -1,1 +1,112 @@
+Options -Indexes
+DirectoryIndex index.php index.html
 
+# ═══════════════════════════════════════════════════
+# PERFORMANCE — Gzip Compression
+# ═══════════════════════════════════════════════════
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/plain text/css application/css
+    AddOutputFilterByType DEFLATE application/javascript text/javascript
+    AddOutputFilterByType DEFLATE application/json application/xml text/xml
+    AddOutputFilterByType DEFLATE image/svg+xml image/x-icon
+    AddOutputFilterByType DEFLATE font/ttf font/otf font/woff font/woff2
+</IfModule>
+
+# ═══════════════════════════════════════════════════
+# PERFORMANCE — Browser Caching
+# ═══════════════════════════════════════════════════
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresDefault                                "access plus 1 month"
+    ExpiresByType text/html                       "access plus 0 seconds"
+    ExpiresByType text/css                        "access plus 1 year"
+    ExpiresByType application/javascript          "access plus 1 year"
+    ExpiresByType text/javascript                 "access plus 1 year"
+    ExpiresByType image/jpeg                      "access plus 6 months"
+    ExpiresByType image/png                       "access plus 6 months"
+    ExpiresByType image/webp                      "access plus 6 months"
+    ExpiresByType image/gif                       "access plus 6 months"
+    ExpiresByType image/svg+xml                   "access plus 6 months"
+    ExpiresByType image/x-icon                    "access plus 1 year"
+    ExpiresByType font/ttf                        "access plus 1 year"
+    ExpiresByType font/otf                        "access plus 1 year"
+    ExpiresByType font/woff                       "access plus 1 year"
+    ExpiresByType font/woff2                      "access plus 1 year"
+    ExpiresByType application/json                "access plus 0 seconds"
+</IfModule>
+
+# ═══════════════════════════════════════════════════
+# SECURITY HEADERS
+# ═══════════════════════════════════════════════════
+<IfModule mod_headers.c>
+    Header unset ETag
+    FileETag None
+
+    # Asset cache headers
+    <FilesMatch "\.(css|js|woff2?|ttf|otf)$">
+        Header set Cache-Control "public, max-age=31536000, immutable"
+    </FilesMatch>
+    <FilesMatch "\.(jpg|jpeg|png|gif|webp|svg|ico)$">
+        Header set Cache-Control "public, max-age=15552000"
+    </FilesMatch>
+    <FilesMatch "\.(html|php)$">
+        Header set Cache-Control "no-cache, no-store, must-revalidate"
+        Header set Pragma "no-cache"
+        Header set Expires "0"
+    </FilesMatch>
+
+    # Security headers
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    Header always set Permissions-Policy "camera=(), microphone=(), geolocation=()"
+    Header always set X-XSS-Protection "1; mode=block"
+
+    # HSTS — only on HTTPS
+    <If "%{HTTPS} == 'on'">
+        Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+    </If>
+
+    # Content Security Policy (single line — backslash continuations break on some servers)
+    Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://cloud.tinymce.com https://cdn.tiny.cloud; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'"
+
+    Header set Connection keep-alive
+</IfModule>
+
+# ═══════════════════════════════════════════════════
+# URL REWRITING — Clean, no auto-language detection
+# ═══════════════════════════════════════════════════
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /
+
+    # Pass system text files to PHP
+    RewriteRule ^sitemap\.xml$ index.php [QSA,L]
+    RewriteRule ^robots\.txt$  index.php [QSA,L]
+
+    # Allow existing files and directories (assets, uploads, etc.)
+    RewriteCond %{REQUEST_FILENAME} -f [OR]
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteRule ^ - [L]
+
+    # Bare root → redirect to /fr/ (default language, no auto-detection)
+    RewriteCond %{REQUEST_URI} ^/?$
+    RewriteRule ^ /fr/ [R=302,L]
+
+    # Everything else → front controller
+    RewriteRule ^ index.php [QSA,L]
+</IfModule>
+
+# Fallback if mod_rewrite is disabled
+<IfModule !mod_rewrite.c>
+    DirectoryIndex index.php
+</IfModule>
+
+# ═══════════════════════════════════════════════════
+# BLOCK DOT-FILES (except .well-known)
+# ═══════════════════════════════════════════════════
+<FilesMatch "^\.(?!well-known)">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+</FilesMatch>
