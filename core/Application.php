@@ -9,11 +9,16 @@ namespace Core;
  *
  * Responsibilities:
  *  1. Load the .env file into $_ENV
- *  2. Apply app-level settings (timezone, error reporting)
- *  3. Register the PSR-4 autoloader
+ *  2. Register the PSR-4 autoloader (BEFORE anything else)
+ *  3. Apply app-level settings (timezone, error reporting)
  *  4. Resolve locale from URL prefix (/fr/, /en/, /es/)
  *  5. Load route definitions
  *  6. Dispatch the request
+ *
+ * Boot order is CRITICAL on Namecheap/LiteSpeed:
+ *   loadEnv()  →  registerAutoloader()  →  configure()  →  new Router()
+ *   The autoloader MUST register before configure() because configure()
+ *   uses Core\Session, Core\Cache, and Core\Assets which need autoloading.
  */
 class Application
 {
@@ -22,7 +27,7 @@ class Application
     public function __construct()
     {
         $this->loadEnv();
-        $this->registerAutoloader(); // ← MUST come before configure() so Core\Cache, Core\Assets, etc. are autoloadable
+        $this->registerAutoloader();
         $this->configure();
 
         $this->router = new Router();
@@ -34,7 +39,7 @@ class Application
     public static function run(): void
     {
         $app = new static();
-        $app->resolveLocale();   // ← i18n step before routing
+        $app->resolveLocale();
         $app->loadRoutes();
         $app->dispatch();
     }
@@ -75,38 +80,8 @@ class Application
     }
 
     /**
-     * Apply PHP runtime settings and start the session.
-     */
-    private function configure(): void
-    {
-        $debug = filter_var(env('APP_DEBUG', false), FILTER_VALIDATE_BOOLEAN);
-        $tz    = env('APP_TIMEZONE', 'UTC');
-
-        error_reporting($debug ? E_ALL : 0);
-        ini_set('display_errors', $debug ? '1' : '0');
-        ini_set('log_errors', '1');
-        ini_set('error_log', BASE_PATH . '/storage/logs/error.log');
-
-        date_default_timezone_set($tz);
-
-        require_once BASE_PATH . '/core/Session.php';
-        \Core\Session::start();
-
-        // File-based cache
-        Cache::init(BASE_PATH . '/storage/cache');
-
-        // Asset pipeline (minify in production)
-        $isProd = env('APP_ENV', 'local') === 'production';
-        Assets::init(
-            publicDir:  BASE_PATH . '/public',
-            cacheDir:   BASE_PATH . '/public/assets/cache',
-            baseUrl:    rtrim(env('APP_URL', ''), '/'),
-            production: $isProd
-        );
-    }
-
-    /**
      * Bootstrap the custom PSR-4 autoloader.
+     * MUST be called before configure() so Core\Cache, Core\Assets, etc. are available.
      */
     private function registerAutoloader(): void
     {
@@ -120,64 +95,100 @@ class Application
         require_once BASE_PATH . '/core/helpers.php';
     }
 
+    /**
+     * Apply PHP runtime settings and start the session.
+     */
+    private function configure(): void
+    {
+        // Respect FORCE_DEBUG: never downgrade error visibility when it's on
+        $forceDebug = defined('FORCE_DEBUG') && FORCE_DEBUG === true;
+        $debug      = $forceDebug || filter_var(env('APP_DEBUG', false), FILTER_VALIDATE_BOOLEAN);
+        $tz         = env('APP_TIMEZONE', 'UTC');
+
+        error_reporting($debug ? E_ALL : (E_ALL & ~E_DEPRECATED & ~E_STRICT));
+        ini_set('display_errors', $debug ? '1' : '0');
+        ini_set('log_errors', '1');
+        ini_set('error_log', BASE_PATH . '/storage/logs/error.log');
+
+        date_default_timezone_set($tz);
+
+        // Start session (Session::start has its own try/catch + fallback)
+        Session::start();
+
+        // File-based cache
+        try {
+            Cache::init(BASE_PATH . '/storage/cache');
+        } catch (\Throwable $e) {
+            error_log('[Cache] Init failed: ' . $e->getMessage());
+        }
+
+        // Asset pipeline (minify in production)
+        try {
+            $isProd = env('APP_ENV', 'local') === 'production';
+            Assets::init(
+                publicDir:  BASE_PATH . '/public',
+                cacheDir:   BASE_PATH . '/public/assets/cache',
+                baseUrl:    rtrim(env('APP_URL', ''), '/'),
+                production: $isProd
+            );
+        } catch (\Throwable $e) {
+            error_log('[Assets] Init failed: ' . $e->getMessage());
+        }
+    }
+
     // -----------------------------------------------------------------------
     // Locale resolution
     // -----------------------------------------------------------------------
 
     /**
      * Detect locale from the URL prefix and strip it from REQUEST_URI.
-     *
-     * Patterns handled:
-     *   /fr/shop  → locale=fr, PATH_INFO=/shop
-     *   /en/      → locale=en, PATH_INFO=/
-     *   /         → redirect to /{browser_lang}/
-     *   /shop     → (no prefix) → redirect to /{locale}/shop
      */
     private function resolveLocale(): void
     {
-        $supported = Lang::supportedLocales(); // ['fr','en','es']
-        $uri       = rawurldecode(parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?? '/');
-        $uri       = '/' . ltrim($uri, '/');
+        try {
+            $supported = Lang::supportedLocales();
+            $uri       = rawurldecode(parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?? '/');
+            $uri       = '/' . ltrim($uri, '/');
 
-        // Skip locale logic entirely for system/asset paths
-        if (RouteGuard::isBypassPath($uri)) {
-            Lang::setLocale('fr');
-            return;
-        }
-
-        // 1. Valid locale prefix: /fr/shop, /en/, /es ...
-        if (preg_match('#^/(' . implode('|', $supported) . ')(/.*)?$#', $uri, $m)) {
-            $locale    = $m[1];
-            $remainder = ($m[2] ?? '') ?: '/';
-
-            Lang::setLocale($locale);
-            Session::set('locale', $locale);
-
-            // Persist in cookie for cross-session memory (1 year)
-            if (!headers_sent()) {
-                setcookie('locale', $locale, time() + 31536000, '/', '', false, false);
+            // Skip locale logic entirely for system/asset paths
+            if (RouteGuard::isBypassPath($uri)) {
+                Lang::setLocale('fr');
+                return;
             }
 
-            // Strip prefix — router sees only the path segment after /{locale}
-            $_SERVER['REQUEST_URI'] = $remainder;
-            return;
+            // 1. Valid locale prefix: /fr/shop, /en/, /es ...
+            if (preg_match('#^/(' . implode('|', $supported) . ')(/.*)?$#', $uri, $m)) {
+                $locale    = $m[1];
+                $remainder = ($m[2] ?? '') ?: '/';
+
+                Lang::setLocale($locale);
+                Session::set('locale', $locale);
+
+                // Persist in cookie for cross-session memory (1 year)
+                if (!headers_sent()) {
+                    setcookie('locale', $locale, time() + 31536000, '/', '', false, false);
+                }
+
+                // Strip prefix — router sees only the path segment after /{locale}
+                $_SERVER['REQUEST_URI'] = $remainder;
+                return;
+            }
+
+            // 2. Bare root / → detect language and redirect
+            $detectedLocale = RouteGuard::detectLanguage();
+
+            if ($uri === '/') {
+                $this->redirectToLocale($detectedLocale);
+            }
+
+            // 3. Any path without a locale prefix → redirect, preserving the path
+            $this->redirectToLocale($detectedLocale, $uri);
+        } catch (\Throwable $e) {
+            // If locale resolution crashes, default to 'fr' and continue
+            error_log('[resolveLocale] Error: ' . $e->getMessage());
+            Lang::setLocale('fr');
         }
-
-        // 2. Bare root / → detect language and redirect
-        $detectedLocale = RouteGuard::detectLanguage();
-
-        if ($uri === '/') {
-            // isHomepageRequest() is true — redirect to /{locale}/
-            $this->redirectToLocale($detectedLocale);
-        }
-
-        // 3. Any path without a locale prefix → redirect, preserving the path
-        //    e.g. /shop → /fr/shop  (SEO-safe: 302 so indexed URLs keep their locale)
-        $this->redirectToLocale($detectedLocale, $uri);
     }
-
-    // detectBrowserLocale() is now handled by RouteGuard::detectLanguage()
-    // with quality-weight parsing and session/cookie priority chain.
 
     /**
      * Issue a 302 redirect to /{locale}{path} and exit.
