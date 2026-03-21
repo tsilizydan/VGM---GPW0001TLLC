@@ -43,15 +43,31 @@ class Session
         ini_set('session.gc_maxlifetime', (string) $lifetime);
         ini_set('session.cookie_lifetime', '0'); // expire on browser close
 
-        // Store sessions inside project storage to avoid shared-host conflicts
-        $savePath = base_path('storage/sessions');
-        if (!is_dir($savePath)) {
-            mkdir($savePath, 0755, true);
+        // Try custom session directory — fallback to system default if it fails.
+        // Namecheap LiteSpeed can reject custom session_save_path via open_basedir.
+        $customPath = base_path('storage/sessions');
+        $useCustom  = false;
+
+        if (@is_dir($customPath) || @mkdir($customPath, 0755, true)) {
+            if (@is_writable($customPath)) {
+                session_save_path($customPath);
+                $useCustom = true;
+            }
         }
-        session_save_path($savePath);
 
         session_name('vgm_session');
-        session_start();
+
+        try {
+            session_start();
+        } catch (\Throwable $e) {
+            // If custom path failed, try system default
+            if ($useCustom) {
+                session_save_path(''); // reset to system default
+                @session_start();
+            } else {
+                error_log('[Session] Failed to start: ' . $e->getMessage());
+            }
+        }
 
         self::$started = true;
     }
