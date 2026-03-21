@@ -15,7 +15,7 @@ declare(strict_types=1);
  */
 
 // ── FORCE_DEBUG: set to true to see the raw stack trace on 500 ──
-define('FORCE_DEBUG', true);
+define('FORCE_DEBUG', false);
 
 ob_start();
 
