@@ -1,1 +1,40 @@
+Options -Indexes
+DirectoryIndex index.php
 
+# ═══════════════════════════════════════════════════════════════
+# ROOT .htaccess — Vanilla Groupe Madagascar
+# LiteSpeed + Namecheap shared hosting
+# Document root = PROJECT ROOT (not /public/)
+# ═══════════════════════════════════════════════════════════════
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /
+
+    # ── 1. Serve real files & directories directly (assets, images) ──
+    RewriteCond %{REQUEST_FILENAME} -f [OR]
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteRule ^ - [L]
+
+    # ── 2. Everything else → root index.php ──────────────────────
+    RewriteRule ^ index.php [QSA,L]
+</IfModule>
+
+# Fallback if mod_rewrite is disabled
+<IfModule !mod_rewrite.c>
+    DirectoryIndex index.php
+</IfModule>
+
+# ── Block sensitive files ─────────────────────────────────────────
+<FilesMatch "\.(env|sql|sh|md|lock|log|gitignore|gitattributes)$">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+</FilesMatch>
+
+# ── Block dot-files (except .well-known) ──────────────────────────
+<FilesMatch "^\.(?!well-known)">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+</FilesMatch>
